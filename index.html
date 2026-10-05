@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест: Не только зарплата</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+        --success: #10b981;
+        --danger: #ef4444;
+        --primary: #8b5cf6;
+        --text-dark: #0f172a;
+        --text-mid: #475569;
+        --text-soft: #94a3b8;
+        --border-soft: #e2e8f0;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', -apple-system, Tahoma, sans-serif;
+        background: #0f172a;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+        color: var(--text-dark);
+        position: relative;
+    }
+
+    .bg-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        background:
+            radial-gradient(1200px 800px at 10% 10%, #4f46e5 0%, transparent 55%),
+            radial-gradient(1000px 700px at 90% 20%, #7c3aed 0%, transparent 55%),
+            radial-gradient(900px 900px at 50% 100%, #db2777 0%, transparent 60%),
+            linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+    }
+    .bg-canvas::before,
+    .bg-canvas::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.55;
+        animation: float 18s ease-in-out infinite;
+    }
+    .bg-canvas::before {
+        width: 480px; height: 480px;
+        background: radial-gradient(circle, #a855f7, transparent 70%);
+        top: -120px; left: -120px;
+    }
+    .bg-canvas::after {
+        width: 520px; height: 520px;
+        background: radial-gradient(circle, #ec4899, transparent 70%);
+        bottom: -160px; right: -140px;
+        animation-delay: -9s;
+    }
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33%      { transform: translate(30px, -40px) scale(1.08); }
+        66%      { transform: translate(-25px, 30px) scale(0.95); }
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 720px;
+        max-height: calc(100vh - 32px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow:
+            0 40px 100px rgba(15, 23, 42, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: cardIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(30px) scale(0.96); }
+        to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    .header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+        background-size: 200% 200%;
+        animation: gradientShift 12s ease infinite;
+        color: #fff;
+        padding: 22px 30px 20px;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50%      { background-position: 100% 50%; }
+    }
+    .header::before {
+        content: '';
+        position: absolute;
+        width: 220px; height: 220px;
+        background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+        border-radius: 50%;
+        top: -90px; right: -60px;
+    }
+    .header-inner { position: relative; z-index: 2; }
+    .header .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 10px;
+    }
+    .header .eyebrow .dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: #fbbf24;
+        box-shadow: 0 0 8px #fbbf24;
+        animation: pulseDot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%      { transform: scale(1.35); opacity: 0.7; }
+    }
+    .header h1 {
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.35;
+        letter-spacing: -0.2px;
+    }
+
+    .progress-wrap { margin-top: 14px; position: relative; z-index: 2; }
+    .progress-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #fde047, #fb923c, #f472b6);
+        background-size: 200% 100%;
+        border-radius: 999px;
+        transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 0 12px rgba(253, 224, 71, 0.5);
+        animation: shine 3s linear infinite;
+    }
+    @keyframes shine {
+        0%   { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+    .progress-text {
+        font-size: 11px;
+        margin-top: 6px;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    .slide-container {
+        position: relative;
+        overflow: hidden;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .slide-container::-webkit-scrollbar { width: 6px; }
+    .slide-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+    .slide {
+        padding: 26px 30px 12px;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    }
+    .slide-enter { transform: translateX(70px) scale(0.98); opacity: 0; }
+    .slide-exit  { transform: translateX(-70px) scale(0.98); opacity: 0; }
+
+    .question-number {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.4px;
+        color: #6d28d9;
+        background: linear-gradient(135deg, #f3e8ff, #ede9fe);
+        padding: 5px 12px;
+        border-radius: 999px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        border: 1px solid rgba(139, 92, 246, 0.18);
+    }
+    .question-number::before {
+        content: '';
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    }
+
+    .question-text {
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 18px;
+        color: var(--text-dark);
+    }
+
+    .options { display: flex; flex-direction: column; gap: 9px; }
+
+    .option {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 12px 16px;
+        border: 2px solid var(--border-soft);
+        border-radius: 12px;
+        cursor: pointer;
+        background: #ffffff;
+        user-select: none;
+        position: relative;
+        transition:
+            border-color 0.25s ease,
+            background 0.25s ease,
+            transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 0.25s ease;
+        animation: optionIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation-delay: calc(var(--i, 0) * 0.06s + 0.08s);
+    }
+    @keyframes optionIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .option:hover {
+        border-color: #a78bfa;
+        background: #faf8ff;
+        transform: translateX(4px);
+        box-shadow: 0 8px 20px -10px rgba(139, 92, 246, 0.4);
+    }
+    .option.selected {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+        box-shadow: 0 10px 24px -12px rgba(139, 92, 246, 0.5);
+    }
+    .option .letter {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: #f1f5f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--text-mid);
+        flex-shrink: 0;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+    .option.selected .letter {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+        transform: scale(1.05);
+        box-shadow: 0 5px 12px -4px rgba(139, 92, 246, 0.6);
+    }
+    .option .text {
+        font-size: 14px;
+        line-height: 1.4;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .option.correct-answer {
+        border-color: var(--success);
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        box-shadow: 0 8px 24px -12px rgba(16, 185, 129, 0.5);
+    }
+    .option.correct-answer .letter {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: transparent;
+    }
+    .option.correct-answer .letter::after {
+        content: '✓';
+        position: absolute;
+        font-size: 15px;
+        font-weight: 900;
+        color: #fff;
+    }
+    .option.wrong-answer {
+        border-color: var(--danger);
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        animation: shakeX 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+    @keyframes shakeX {
+        0%, 100% { transform: translateX(0); }
+        25%      { transform: translateX(-5px); }
+        50%      { transform: translateX(5px); }
+        75%      { transform: translateX(-3px); }
+    }
+    .option.wrong-answer .letter {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: transparent;
+    }
+    .option.wrong-answer .letter::after {
+        content: '✕';
+        position: absolute;
+        font-size: 13px;
+        font-weight: 900;
+        color: #fff;
+    }
+    .option.locked { cursor: default; pointer-events: none; }
+    .option.locked:hover { transform: none; }
+
+    .feedback {
+        padding: 0 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.55;
+        border-left: 4px solid;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition:
+            max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 0.35s ease,
+            padding 0.4s ease,
+            margin-top 0.35s ease;
+    }
+    .feedback.show {
+        opacity: 1;
+        max-height: 400px;
+        padding: 14px 16px;
+        margin-top: 14px;
+    }
+    .feedback.correct {
+        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        border-color: var(--success);
+        color: #065f46;
+    }
+    .feedback.wrong {
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        border-color: var(--danger);
+        color: #991b1b;
+    }
+    .feedback strong { display: block; margin-bottom: 4px; font-size: 14px; font-weight: 700; }
+
+    .nav-buttons {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 30px 20px;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    .btn {
+        padding: 12px 22px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: inherit;
+    }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+        background-size: 200% 200%;
+        color: #fff;
+        flex: 1;
+        box-shadow: 0 10px 22px -8px rgba(99, 102, 241, 0.55);
+    }
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px -10px rgba(99, 102, 241, 0.7);
+        background-position: 100% 50%;
+    }
+    .btn-primary:disabled {
+        opacity: 0.4; cursor: not-allowed; box-shadow: none;
+        background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+    }
+    .btn-secondary {
+        background: #f1f5f9;
+        color: var(--text-mid);
+        border: 1px solid var(--border-soft);
+    }
+    .btn-secondary:hover:not(:disabled) {
+        background: #e2e8f0;
+        color: var(--text-dark);
+    }
+    .btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ============== РЕЗУЛЬТАТЫ — компактно и по центру ============== */
+    .results {
+        padding: 26px 30px 24px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .results h2 {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.4px;
+    }
+    .results .subtitle {
+        color: var(--text-mid);
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    /* ТРИ БОЛЬШИЕ ЦИФРЫ */
+    .big-numbers {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .big-number {
+        padding: 22px 10px;
+        border-radius: 18px;
+        position: relative;
+        overflow: hidden;
+        animation: bigPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .big-number:nth-child(1) { animation-delay: 0.1s; }
+    .big-number:nth-child(2) { animation-delay: 0.2s; }
+    .big-number:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bigPop {
+        0%   { opacity: 0; transform: scale(0.5); }
+        70%  { transform: scale(1.06); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    .big-number .num {
+        font-size: 60px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -3px;
+        display: block;
+    }
+    .big-number .lab {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        margin-top: 8px;
+        opacity: 0.85;
+    }
+
+    .big-number.correct {
+        background: linear-gradient(160deg, #ecfdf5 0%, #a7f3d0 100%);
+        border: 2px solid rgba(16, 185, 129, 0.35);
+        box-shadow: 0 14px 32px -16px rgba(16, 185, 129, 0.6);
+    }
+    .big-number.correct .num { color: #047857; }
+    .big-number.correct .lab { color: #065f46; }
+
+    .big-number.wrong {
+        background: linear-gradient(160deg, #fef2f2 0%, #fecaca 100%);
+        border: 2px solid rgba(239, 68, 68, 0.35);
+        box-shadow: 0 14px 32px -16px rgba(239, 68, 68, 0.6);
+    }
+    .big-number.wrong .num { color: #b91c1c; }
+    .big-number.wrong .lab { color: #991b1b; }
+
+    .big-number.total {
+        background: linear-gradient(160deg, #f5f3ff 0%, #ddd6fe 100%);
+        border: 2px solid rgba(139, 92, 246, 0.35);
+        box-shadow: 0 14px 32px -16px rgba(139, 92, 246, 0.6);
+    }
+    .big-number.total .num {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .big-number.total .lab { color: #6d28d9; }
+
+    /* Двойная полоса */
+    .result-progress {
+        display: flex;
+        height: 12px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #f1f5f9;
+        margin-bottom: 16px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+    .result-progress .bar-correct {
+        background: linear-gradient(90deg, #10b981, #059669);
+        transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+        width: 0%;
+    }
+    .result-progress .bar-wrong {
+        background: linear-gradient(90deg, #f87171, #ef4444);
+        transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+        width: 0%;
+    }
+
+    .verdict {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 999px;
+        margin: 0 auto 18px;
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+    }
+    .verdict.excellent { background: #ecfdf5; color: #065f46; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .verdict.good      { background: #eff6ff; color: #1e40af; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .verdict.mid       { background: #fffbeb; color: #92400e; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .verdict.low       { background: #fef2f2; color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .results-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    .results-actions .btn { padding: 12px 28px; font-size: 14px; }
+
+    /* Модалка разбора */
+    .review-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(6px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .review-modal.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .review-modal-inner {
+        background: #fff;
+        border-radius: 22px;
+        width: 100%;
+        max-width: 640px;
+        max-height: 85vh;
+        overflow-y: auto;
+        padding: 26px 26px 20px;
+        position: relative;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        transform: scale(0.92);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .review-modal.open .review-modal-inner { transform: scale(1); }
+    .review-modal-inner::-webkit-scrollbar { width: 8px; }
+    .review-modal-inner::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    .review-modal h3 {
+        font-size: 19px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .modal-close {
+        background: #f1f5f9;
+        border: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 18px;
+        color: var(--text-mid);
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+    .modal-close:hover { background: #e2e8f0; color: var(--text-dark); }
+
+    .review-item {
+        text-align: left;
+        padding: 14px 16px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        background: #fafbfc;
+        border-left: 5px solid;
+        font-size: 13px;
+        line-height: 1.5;
+        animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .review-item.correct { border-color: var(--success); background: linear-gradient(135deg, #f0fdf4, #fafbfc); }
+    .review-item.wrong   { border-color: var(--danger);  background: linear-gradient(135deg, #fef2f2, #fafbfc); }
+
+    .review-item .q-title {
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    .review-item .q-your { color: var(--text-mid); margin-bottom: 4px; font-size: 12.5px; }
+    .review-item .q-your b { color: var(--text-dark); font-weight: 700; }
+    .review-item .q-right { color: #047857; margin-bottom: 4px; font-size: 12.5px; }
+    .review-item .q-right b { color: #065f46; font-weight: 700; }
+    .review-item .q-explain {
+        color: var(--text-mid);
+        font-size: 12px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #cbd5e1;
+        line-height: 1.55;
+    }
+    .badge {
+        display: inline-block;
+        font-size: 9px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-left: 6px;
+        vertical-align: middle;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    .badge.ok { background: #10b981; color: #fff; }
+    .badge.no { background: #ef4444; color: #fff; }
+
+    @media (max-width: 620px) {
+        body { padding: 10px; }
+        .container { border-radius: 20px; max-height: calc(100vh - 20px); }
+        .header { padding: 18px 20px 16px; }
+        .header h1 { font-size: 15px; }
+        .slide { padding: 20px 20px 8px; }
+        .nav-buttons { padding: 6px 20px 16px; }
+        .question-text { font-size: 15px; margin-bottom: 14px; }
+        .option { padding: 10px 14px; gap: 10px; }
+        .option .letter { width: 26px; height: 26px; font-size: 12px; border-radius: 8px; }
+        .option .text { font-size: 13px; }
+        .results { padding: 20px 18px 18px; }
+        .results h2 { font-size: 19px; }
+        .big-numbers { gap: 8px; }
+        .big-number { padding: 16px 6px; border-radius: 14px; }
+        .big-number .num { font-size: 42px; letter-spacing: -2px; }
+        .big-number .lab { font-size: 9px; letter-spacing: 1px; }
+        .verdict { font-size: 12px; padding: 8px 14px; }
+        .results-actions .btn { padding: 10px 18px; font-size: 13px; }
+        .review-modal-inner { padding: 20px 18px 16px; border-radius: 18px; }
+    }
+
+    @media (max-height: 700px) {
+        .header { padding: 16px 24px 14px; }
+        .header h1 { font-size: 15px; }
+        .header .eyebrow { display: none; }
+        .progress-wrap { margin-top: 10px; }
+        .slide { padding: 20px 26px 8px; }
+        .question-text { font-size: 16px; margin-bottom: 14px; }
+        .option { padding: 10px 15px; }
+        .nav-buttons { padding: 6px 26px 16px; }
+        .results { padding: 20px 26px 18px; }
+        .big-number .num { font-size: 50px; }
+        .big-number { padding: 16px 8px; }
+    }
+
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        z-index: 9999;
+        pointer-events: none;
+        will-change: transform, opacity;
+    }
+    @keyframes confettiFall {
+        0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: translate3d(var(--dx, 0), 100vh, 0) rotate(var(--rot, 720deg)); opacity: 0; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="header-inner">
+            <div class="eyebrow"><span class="dot"></span>Интерактивный тест</div>
+            <h1>Не только зарплата: что действительно мотивирует и удерживает сотрудников</h1>
+        </div>
+        <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text">
+                <span id="progressLabel">Вопрос 1 из 8</span>
+                <span id="progressPercent">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slideContainer"></div>
+</div>
+
+<!-- Модалка разбора -->
+<div class="review-modal" id="reviewModal">
+    <div class="review-modal-inner">
+        <h3>
+            <span>Разбор ответов</span>
+            <button class="modal-close" onclick="closeReview()">✕</button>
+        </h3>
+        <div id="reviewContent"></div>
+    </div>
+</div>
+
+<script>
+const questions = [
+    {
+        q: "Каков главный принцип модели удержания персонала, представленной в презентации?",
+        options: [
+            "Сначала исправляем, потом диагностируем",
+            "Сначала диагностируем, потом исправляем",
+            "Диагностика и исправление происходят одновременно",
+            "Материальное поощрение без предварительной диагностики"
+        ],
+        correct: 1,
+        explain: "Любые действия по удержанию бессмысленны без предварительной диагностики, так как нельзя эффективно решать проблему, не зная ее точных и глубоких причин."
+    },
+    {
+        q: "Что из перечисленного НЕ входит в топ-4 самых частых причин ухода сотрудников из компании?",
+        options: [
+            "Выгорание и постоянная перегрузка",
+            "Слабый руководитель и отсутствие поддержки",
+            "Низкий уровень базового оклада",
+            "Отсутствие развития и перспектив роста"
+        ],
+        correct: 2,
+        explain: "В топ-4 причин согласно презентации входят: отсутствие развития, выгорание, слабый руководитель и несправедливость (ощущение неравного отношения). Базовый оклад сам по себе в этой четверке не выделен."
+    },
+    {
+        q: "Какие три инструмента выделены в презентации для точного выявления того, что ценно именно для ваших сотрудников?",
+        options: [
+            "Анкетирование, коучинг, KPI-аналитика",
+            "Опросы, интервью, аналитика",
+            "Аттестация, фокус-группы, аудит",
+            "Пульс-опросы, тимбилдинги, увольнительные интервью"
+        ],
+        correct: 1,
+        explain: "Презентация предлагает использовать триаду инструментов: Опросы (регулярные срезы настроения), Интервью (глубинные разговоры) и Аналитику (данные о текучести и эффективности)."
+    },
+    {
+        q: "Какая логическая цепочка демонстрирует правильную связку работы пульс-опросов и удержания сотрудников?",
+        options: [
+            "Пульс-опрос → Показатели падают → Личный разговор → Точечное решение → Сотрудник остается",
+            "Пульс-опрос → Увольнение → Аналитика → Новое решение → Поиск сотрудника",
+            "Личный разговор → Точечное решение → Пульс-опрос → Показатели растут",
+            "Аналитика → Изменение KPI → Пульс-опрос → Личный разговор"
+        ],
+        correct: 0,
+        explain: "Пульс-опрос позволяет заранее увидеть риск ухода. Если показатели падают, вовремя проведенный личный разговор и точечное решение помогают удержать человека."
+    },
+    {
+        q: "Какая из задач НЕ относится к ключевым задачам измерения вовлеченности и удержания?",
+        options: [
+            "Понять, хотят ли сотрудники оставаться в компании",
+            "Найти группы сотрудников с повышенным риском ухода",
+            "Определить точный размер денежного штрафа за неэффективность",
+            "Выявить причины, по которым сотрудники могут уйти"
+        ],
+        correct: 2,
+        explain: "Задача измерения — понять мотивацию, найти риски ухода, выявить удерживающие факторы и определить, что изменить, чтобы люди хотели остаться. Штрафы здесь не рассматриваются."
+    },
+    {
+        q: "В чем заключается принципиальное различие между понятиями «вовлеченность» и «удержание»?",
+        options: [
+            "Вовлеченность касается денег, а удержание — лояльности",
+            "Вовлеченность — про «сейчас», удержание — про «дальше»",
+            "Вовлеченность ориентирована на руководство, удержание — на команду",
+            "Между этими понятиями нет разницы, это синонимы"
+        ],
+        correct: 1,
+        explain: "Сотрудник может быть искренне увлечен своими текущими задачами прямо сейчас, но параллельно уже просматривать вакансии и планировать уход из компании в будущем."
+    },
+    {
+        q: "Почему один и тот же балл вовлеченности у разных сотрудников может скрывать совершенно разные риски ухода?",
+        options: [
+            "Балл складывается из разных факторов (у одного держится на команде, у другого — на зарплате)",
+            "Из-за технических ошибок в аналитических системах HR",
+            "Из-за разного стажа работы сотрудников в компании",
+            "Из-за того, что опросы проводятся в разное время года"
+        ],
+        correct: 0,
+        explain: "У вовлеченности разные драйверы. Если высокий балл держится только на зарплате, риск ухода при лучшем предложении на рынке намного выше, чем у того, кого держит команда."
+    },
+    {
+        q: "Какой тип мотивации в презентации назван хрупким и «рвущимся при первом же оффере»?",
+        options: [
+            "Внутренняя мотивация",
+            "Внешняя мотивация (страх, отсутствие альтернативы)",
+            "Нематериальная мотивация",
+            "Смешанная мотивация"
+        ],
+        correct: 1,
+        explain: "Внутренняя мотивация устойчива, а внешняя (основанная на страхе, деньгах или отсутствии других вариантов) легко разрушается, как только сотрудник получает предложение заметно лучше текущего."
+    }
+];
+
+const LETTERS = ['А', 'Б', 'В', 'Г'];
+const state = {
+    current: 0,
+    answers: new Array(questions.length).fill(null),
+    revealed: new Array(questions.length).fill(false)
+};
+
+const container = document.getElementById('slideContainer');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+const progressPercent = document.getElementById('progressPercent');
+
+function updateProgress() {
+    const answered = state.revealed.filter(Boolean).length;
+    const pct = Math.round((answered / questions.length) * 100);
+    progressFill.style.width = pct + '%';
+    if (state.current < questions.length) {
+        progressLabel.textContent = `Вопрос ${state.current + 1} из ${questions.length}`;
+        progressPercent.textContent = pct + '%';
+    }
+}
+
+function renderSlide() {
+    const idx = state.current;
+    if (idx >= questions.length) { renderResults(); return; }
+
+    const q = questions[idx];
+    const slide = document.createElement('div');
+    slide.className = 'slide slide-enter';
+
+    const answered = state.revealed[idx];
+    const userAnswer = state.answers[idx];
+
+    let optionsHTML = '';
+    q.options.forEach((opt, i) => {
+        let classes = 'option';
+        if (userAnswer === i) classes += ' selected';
+        if (answered) {
+            classes += ' locked';
+            if (i === q.correct) classes += ' correct-answer';
+            else if (i === userAnswer) classes += ' wrong-answer';
+        }
+        optionsHTML += `
+            <div class="${classes}" data-index="${i}" style="--i:${i}">
+                <div class="letter">${LETTERS[i]}</div>
+                <div class="text">${opt}</div>
+            </div>
+        `;
+    });
+
+    let feedbackHTML = '';
+    if (answered) {
+        const correct = userAnswer === q.correct;
+        feedbackHTML = `
+            <div class="feedback show ${correct ? 'correct' : 'wrong'}">
+                <strong>${correct ? '✅ Верно!' : '❌ Неверно. Правильный ответ: ' + LETTERS[q.correct]}</strong>
+                ${q.explain}
+            </div>
+        `;
+    }
+
+    slide.innerHTML = `
+        <div class="question-number">Вопрос ${idx + 1}</div>
+        <div class="question-text">${q.q}</div>
+        <div class="options">${optionsHTML}</div>
+        ${feedbackHTML}
+    `;
+
+    container.innerHTML = '';
+    container.appendChild(slide);
+    container.appendChild(buildNav());
+
+    requestAnimationFrame(() => slide.classList.remove('slide-enter'));
+
+    slide.querySelectorAll('.option').forEach(el => {
+        el.addEventListener('click', () => {
+            if (state.revealed[idx]) return;
+            const i = parseInt(el.dataset.index);
+            state.answers[idx] = i;
+            state.revealed[idx] = true;
+            renderSlideWithFeedback(idx);
+        });
+    });
+
+    updateProgress();
+}
+
+function renderSlideWithFeedback(idx) {
+    const q = questions[idx];
+    const slide = container.querySelector('.slide');
+    const userAnswer = state.answers[idx];
+
+    slide.querySelectorAll('.option').forEach((el, i) => {
+        el.classList.remove('selected');
+        el.classList.add('locked');
+        if (i === userAnswer) el.classList.add('selected');
+        if (i === q.correct) el.classList.add('correct-answer');
+        if (i === userAnswer && userAnswer !== q.correct) el.classList.add('wrong-answer');
+    });
+
+    const correct = userAnswer === q.correct;
+    const fb = document.createElement('div');
+    fb.className = `feedback ${correct ? 'correct' : 'wrong'}`;
+    fb.innerHTML = `
+        <strong>${correct ? '✅ Верно!' : '❌ Неверно. Правильный ответ: ' + LETTERS[q.correct]}</strong>
+        ${q.explain}
+    `;
+    slide.appendChild(fb);
+    requestAnimationFrame(() => fb.classList.add('show'));
+
+    // обновить кнопки
+    const oldNav = container.querySelector('.nav-buttons');
+    if (oldNav) oldNav.remove();
+    container.appendChild(buildNav());
+    updateProgress();
+}
+
+function buildNav() {
+    const idx = state.current;
+    const navEl = document.createElement('div');
+    navEl.className = 'nav-buttons';
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'btn btn-secondary';
+    backBtn.textContent = '← Назад';
+    backBtn.disabled = idx === 0;
+    backBtn.onclick = () => {
+        if (state.current > 0) {
+            animateExit(() => { state.current--; renderSlide(); });
+        }
+    };
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    const isLast = idx === questions.length - 1;
+    nextBtn.textContent = isLast ? 'Показать результат' : 'Далее →';
+    nextBtn.disabled = !state.revealed[idx];
+    nextBtn.onclick = () => {
+        if (!state.revealed[idx]) return;
+        animateExit(() => { state.current++; renderSlide(); });
+    };
+
+    navEl.appendChild(backBtn);
+    navEl.appendChild(nextBtn);
+    return navEl;
+}
+
+function animateExit(callback) {
+    const slide = container.querySelector('.slide');
+    if (slide) {
+        slide.classList.add('slide-exit');
+        setTimeout(callback, 350);
+    } else {
+        callback();
+    }
+}
+
+function renderResults() {
+    const total = questions.length;
+    const correct = state.answers.reduce((acc, ans, i) => acc + (ans === questions[i].correct ? 1 : 0), 0);
+    const wrong = total - correct;
+    const pct = Math.round((correct / total) * 100);
+    const correctPct = (correct / total) * 100;
+    const wrongPct = (wrong / total) * 100;
+
+    let verdict, verdictIcon, verdictClass;
+    if (pct === 100)      { verdict = 'Идеально! Материал полностью усвоен'; verdictIcon = '🏆'; verdictClass = 'excellent'; }
+    else if (pct >= 75)   { verdict = 'Отличный результат! Материал в основном усвоен'; verdictIcon = '👏'; verdictClass = 'good'; }
+    else if (pct >= 50)   { verdict = 'Неплохо, но стоит повторить ключевые моменты'; verdictIcon = '📖'; verdictClass = 'mid'; }
+    else                  { verdict = 'Рекомендуем вернуться к материалам презентации'; verdictIcon = '📚'; verdictClass = 'low'; }
+
+    const results = document.createElement('div');
+    results.className = 'results';
+    results.innerHTML = `
+        <h2>Тест завершён!</h2>
+        <p class="subtitle">Итог по ${total} вопросам</p>
+
+        <div class="big-numbers">
+            <div class="big-number correct">
+                <span class="num">${correct}</span>
+                <span class="lab">Верно</span>
+            </div>
+            <div class="big-number wrong">
+                <span class="num">${wrong}</span>
+                <span class="lab">Неверно</span>
+            </div>
+            <div class="big-number total">
+                <span class="num">${pct}%</span>
+                <span class="lab">Результат</span>
+            </div>
+        </div>
+
+        <div class="result-progress">
+            <div class="bar-correct" id="barCorrect"></div>
+            <div class="bar-wrong" id="barWrong"></div>
+        </div>
+
+        <div class="verdict ${verdictClass}">
+            <span>${verdictIcon}</span>
+            <span>${verdict}</span>
+        </div>
+
+        <div class="results-actions">
+            <button class="btn btn-secondary" onclick="openReview()">Разбор ответов</button>
+            <button class="btn btn-primary" onclick="restartTest()">Пройти заново</button>
+        </div>
+    `;
+
+    container.innerHTML = '';
+    container.appendChild(results);
+
+    progressLabel.textContent = 'Результат';
+    progressPercent.textContent = '100%';
+    progressFill.style.width = '100%';
+
+    setTimeout(() => {
+        const bc = document.getElementById('barCorrect');
+        const bw = document.getElementById('barWrong');
+        if (bc) bc.style.width = correctPct + '%';
+        if (bw) bw.style.width = wrongPct + '%';
+    }, 250);
+
+    if (pct >= 75) {
+        setTimeout(() => launchConfetti(pct === 100 ? 90 : 45), 450);
+    }
+}
+
+function openReview() {
+    const reviewContent = document.getElementById('reviewContent');
+    let html = '';
+    questions.forEach((q, i) => {
+        const userAns = state.answers[i];
+        const isCorrect = userAns === q.correct;
+        html += `
+            <div class="review-item ${isCorrect ? 'correct' : 'wrong'}" style="animation-delay:${i * 0.05}s">
+                <div class="q-title">Вопрос ${i + 1}. ${q.q}
+                    <span class="badge ${isCorrect ? 'ok' : 'no'}">${isCorrect ? 'Верно' : 'Ошибка'}</span>
+                </div>
+                <div class="q-your">Ваш ответ: <b>${userAns !== null ? LETTERS[userAns] + ') ' + q.options[userAns] : '—'}</b></div>
+                ${!isCorrect ? `<div class="q-right">Правильно: <b>${LETTERS[q.correct]}) ${q.options[q.correct]}</b></div>` : ''}
+                <div class="q-explain">💡 ${q.explain}</div>
+            </div>
+        `;
+    });
+    reviewContent.innerHTML = html;
+    document.getElementById('reviewModal').classList.add('open');
+}
+
+function closeReview() {
+    document.getElementById('reviewModal').classList.remove('open');
+}
+
+document.getElementById('reviewModal').addEventListener('click', (e) => {
+    if (e.target.id === 'reviewModal') closeReview();
+});
+
+function launchConfetti(count) {
+    const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#fbbf24', '#10b981', '#06b6d4'];
+    const shapes = ['50%', '2px', '0'];
+    for (let i = 0; i < count; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = '-20px';
+        c.style.width = (6 + Math.random() * 8) + 'px';
+        c.style.height = (6 + Math.random() * 8) + 'px';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)];
+        const dur = 2.5 + Math.random() * 2.5;
+        const dx = (Math.random() - 0.5) * 400;
+        const rot = 360 + Math.random() * 1080;
+        c.style.animation = `confettiFall ${dur}s cubic-bezier(0.15, 0.6, 0.4, 1) forwards`;
+        c.style.setProperty('--dx', dx + 'px');
+        c.style.setProperty('--rot', rot + 'deg');
+        c.style.animationDelay = Math.random() * 0.6 + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), (dur + 1.5) * 1000);
+    }
+}
+
+function restartTest() {
+    state.current = 0;
+    state.answers = new Array(questions.length).fill(null);
+    state.revealed = new Array(questions.length).fill(false);
+    updateProgress();
+    renderSlide();
+}
+
+updateProgress();
+renderSlide();
+</script>
+</body>
+</html>
